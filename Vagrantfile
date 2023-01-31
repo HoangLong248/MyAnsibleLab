@@ -1,21 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-$script = <<-SCRIPT
-sudo useradd -m ansible;
-sudo echo "ansible:P@ssWord123" | sudo chpasswd;
-sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config;
-sudo systemctl restart sshd;
-
-sudo echo "%ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible;
-SCRIPT
-
-$set_dns_server = <<-SCRIPT
-sudo echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8\n" >> /etc/resolv.conf
-SCRIPT
-
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell", inline: $script
-  config.vm.provision "shell", inline: $set_dns_server
+  config.vm.provision "shell", path: "./scripts/alias_hosts.sh"
+  config.vm.provision "shell", path: "./scripts/adduser_ansible.sh"
+  config.vm.provision "shell", path: "./scripts/config_dns_server.sh"
 
   config.vm.define "ansible_controller" do |ansible_controller|
     ansible_controller.vm.box = "centos/7"
